@@ -1,7 +1,7 @@
 # git-clone-if-newer
 Script to clone and softlink a git repo... _if needed_.
 
-NOTE: This repo has been "upgraded" from a gist. Documentation is still very poor and the idea is to improve it little by little.
+NOTE: This repo has been "promoted" from a gist. Documentation is still very poor and the idea is to improve it little by little.
 
 ## Steps taken by the script
 
