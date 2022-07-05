@@ -1,28 +1,8 @@
 #!/bin/bash
-set -u
+set -eu
+IFS=$'\n\t'
 
 # Clones and softlinks a git repo, _if needed_.
-
-# Summary of steps:
-# 1. Checks that the provided repo is valid (SSH or HTTP)
-# 2. Compares local and remote commit to see if there is a new version
-# 3. Clones the remote commit in local, adding -<timestamp>-<commit> to the folder name
-# 4. Deletes .git directory of the cloned repo
-# 5. Runs script <repo name>-after-update.sh, with two arguments:
-#     - <repo name>
-#     - <repo name>-<timestamp>-<commit>
-#    and fails if:
-#     - script is not present
-#     - .ok-<repo name> is present _before_ running script
-#     - script exits with non-zero code
-#     - .ok-<repo name> is not present _after_ running script
-# 6. Softlinks <repo name> to <repo name>-<timestamp>-<commit>
-# 7. Deletes old versions
-
-# to install:
-# git clone https://gist.github.com/cc88af3c9c4f8664216ea07bd08c250f.git _gcin
-# command cp -f _gcin/git-clone-if-newer.sh . && rm -rf _gcin && chmod +x git-clone-if-newer.sh
-
 # for usage, just run and see output:
 # ./git-clone-if-newer.sh
 
@@ -81,7 +61,7 @@ while getopts ":b:o:k" VARNAME; do
                     usage "<old versions to keep> is not a positive integer number"
                 fi
             fi
-            SOFTLINK="$OPTARG"
+            KEEP_OLD_VERSIONS="$OPTARG"
             ;;
         k)
             KEEP_GIT_DIR=1
