@@ -14,6 +14,7 @@ DEFAULT_GIT_BRANCH=master
 DEFAULT_KEEP_GIT_DIR=0
 DEFAULT_KEEP_OLD_VERSIONS=3
 DEFAULT_DEST_DIR=""
+DEFAULT_PRE_SCRIPT=""
 DEFAULT_SOFTLINK=1
 
 ############################################################################
@@ -32,6 +33,7 @@ Where:
 Options:
     -b <branch>: name of branch to clone. Default: $DEFAULT_GIT_BRANCH
     -o <number>: number of old versions to keep. Default: $DEFAULT_KEEP_OLD_VERSIONS
+    -s <script>: run script after cloning and before softlinking.
     -k: switch to keep the cloned .git folder.
 "
 
@@ -47,9 +49,10 @@ GIT_BRANCH=$DEFAULT_GIT_BRANCH
 KEEP_GIT_DIR=$DEFAULT_KEEP_GIT_DIR
 KEEP_OLD_VERSIONS=$DEFAULT_KEEP_OLD_VERSIONS
 DEST_DIR=$DEFAULT_DEST_DIR
+PRE_SCRIPT=$DEFAULT_PRE_SCRIPT
 SOFTLINK=$DEFAULT_SOFTLINK
 
-while getopts ":b:o:k" VARNAME; do
+while getopts ":b:o:s:k" VARNAME; do
     case $VARNAME in
         b)
             GIT_BRANCH="$OPTARG"
@@ -62,6 +65,9 @@ while getopts ":b:o:k" VARNAME; do
                 fi
             fi
             KEEP_OLD_VERSIONS="$OPTARG"
+            ;;
+        s)
+            PRE_SCRIPT="$OPTARG"
             ;;
         k)
             KEEP_GIT_DIR=1
@@ -255,35 +261,26 @@ fi
 # 5. YOUR SCRIPT IS RUN HERE
 ############################################################################
 
-SETUP_SCRIPT=$DEST_DIR-after-update.sh
-OK_FILE=.ok-$DEST_DIR
+if [ ! -z $PRE_SCRIPT ]; then
+    if [ ! -f $PRE_SCRIPT ]; then
+        error_and_clean "Script $PRE_SCRIPT does not exist." 50
+    elif [ ! -x $PRE_SCRIPT ]; then
+        error_and_clean "Script $PRE_SCRIPT is not executable." 51
+    fi
 
-if [ ! -f $SETUP_SCRIPT ]; then
-    error_and_clean "Script $SETUP_SCRIPT does not exist." 50
-elif [ ! -x $SETUP_SCRIPT ]; then
-    error_and_clean "Script $SETUP_SCRIPT is not executable." 51
+    echo ""
+    echo "Running script $PRE_SCRIPT ..."
+
+    sh -c "`realpath $PRE_SCRIPT` $DEST_DIR $LOCAL_DIR"
+
+    RETCODE=$?
+    if [ ! $RETCODE -eq 0 ]; then
+        error_and_clean "Script returned non-zero code ($RETCODE)." 53
+    fi
+
+    cd $BASE_DIR
 fi
 
-if [ -f $OK_FILE ]; then
-    error_and_clean "File $OK_FILE already exist." 52
-fi
-
-echo ""
-echo "Running script $SETUP_SCRIPT ..."
-
-./$SETUP_SCRIPT $DEST_DIR $LOCAL_DIR
-
-RETCODE=$?
-if [ ! $RETCODE -eq 0 ]; then
-    error_and_clean "Script returned non-zero code ($RETCODE)." 53
-fi
-
-cd $BASE_DIR
-
-if [ ! -f $OK_FILE ]; then
-    error_and_clean "File $OK_FILE not found." 54
-fi
-rm -f $OK_FILE
 
 ############################################################################
 # 6. softlink
