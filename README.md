@@ -21,7 +21,7 @@ Where:
  - `git repo url` has the SSH or HTTP format, e.g.:
    - `git@github.com:gto76/linux-cheatsheet.git`
    - `https://github.com/gto76/linux-cheatsheet.git`
- - `local folder`: optional destination folder. Default: repo name extracted from [git repo url]
+ - `local folder`: optional destination folder. Default: repo name extracted from `git repo url`
 
 Options:
  - `-b <branch>`: name of branch to clone. Default: `master`
@@ -91,6 +91,23 @@ the script is passed two arguments:
 
 1. Local folder, e.g. `my-repo`
 2. Full local repo folder, e.g. `my-repo-20220916_130546-e1d5e89b`.
+
+This way you will be able to run things like:
+
+```
+docker build -f $2/Dockerfile -t my-docker-image $2 || exit 1
+```
+
+or
+
+```
+cd $2
+cp ../.env .env || exit 1
+composer install || exit 2
+php artisan migrate || exit 3
+npm install || exit 4
+npm run prod || exit 5
+```
 
 If the script exits with code `0`, the program continues execution.
 
