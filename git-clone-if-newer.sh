@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eu
+set -u
 IFS=$'\n\t'
 
 # Clones and softlinks a git repo, _if needed_.
@@ -292,7 +292,9 @@ rm -f $OK_FILE
 if [ $SOFTLINK -eq 1 ]; then
     echo ""
     echo "Softlinking $DEST_DIR to $LOCAL_DIR ..."
-    unlink $DEST_DIR
+    if [ -h $DEST_DIR ]; then
+        unlink $DEST_DIR
+    fi
     ln -sf $LOCAL_DIR $DEST_DIR
 
     RETCODE=$?
