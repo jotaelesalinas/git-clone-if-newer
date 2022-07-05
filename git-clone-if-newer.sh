@@ -2,8 +2,8 @@
 set -u
 IFS=$'\n\t'
 
-# Clones and softlinks a git repo, _if needed_.
-# for usage, just run and see output:
+# Clones and softlinks a git repo, if needed.
+# For usage, just run and see output:
 # ./git-clone-if-newer.sh
 
 ############################################################################
@@ -209,7 +209,7 @@ LOCAL_DIR="$DEST_DIR-$LOCAL_TIME-$COMMIT_ID_REMOTE"
 
 echo ""
 echo "Cloning $GIT_FULL_REPO ..."
-git clone --depth 1 -b $GIT_BRANCH $GIT_FULL_REPO $LOCAL_DIR
+git clone --depth 1 --shallow-submodules -b $GIT_BRANCH $GIT_FULL_REPO $LOCAL_DIR
 
 RETCODE=$?
 if [ ! $RETCODE -eq 0 ]; then
