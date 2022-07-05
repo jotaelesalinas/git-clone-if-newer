@@ -31,7 +31,7 @@ Options:
 
 ## Example
 
-This is your initial folder contents:
+These are your initial folder contents:
 
 ```
 ./
