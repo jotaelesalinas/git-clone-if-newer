@@ -111,7 +111,7 @@ npm run prod || exit 5
 
 If the script exits with code `0`, the program continues execution.
 
-Any other return code causes the program to delete the newly created repo folder and exit.
+Any other return code causes the program to delete the newly created repo folder and terminate.
 
 ## Steps taken by the script
 
