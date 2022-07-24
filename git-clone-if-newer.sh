@@ -165,30 +165,35 @@ fi
 # summary
 ############################################################################
 
-echo "Repository:           $GIT_FULL_REPO"
-echo "Branch:               $GIT_BRANCH"
-echo "Destination:          $DEST_DIR"
-echo "Keep .git directory:  $KEEP_GIT_DIR"
-echo "Create softlink:      $SOFTLINK"
-echo "Old versions to keep: $KEEP_OLD_VERSIONS"
+echo ""
+echo "Cloning options"
+echo "> Repository:           $GIT_FULL_REPO"
+echo "> Branch:               $GIT_BRANCH"
+echo "> Destination:          $DEST_DIR"
+echo "> Keep .git directory:  $KEEP_GIT_DIR"
+echo "> Create softlink:      $SOFTLINK"
+echo "> Old versions to keep: $KEEP_OLD_VERSIONS"
+echo "> Custom script:        $PRE_SCRIPT"
 
 ############################################################################
 # 2. compare local and remote commits
 ############################################################################
 
 echo ""
+echo "Last commit IDs"
 
 COMMIT_ID_LOCAL=`ls -d $DEST_DIR-*/ 2> /dev/null | tail -n 1 | rev | cut -d'-' -f1 | rev | sed -e 's/\/$//'`
 if [[ $COMMIT_ID_LOCAL != "" ]]; then
-    echo "Last local commit id:  $COMMIT_ID_LOCAL"
+    echo "> Local:  $COMMIT_ID_LOCAL"
 else
-    echo "No local clones found."
+    echo "> Local:  No local clones found."
 fi
 
 COMMIT_ID_REMOTE=`git ls-remote $GIT_FULL_REPO refs/heads/$GIT_BRANCH | cut -c-8`
-echo "Last remote commit id: $COMMIT_ID_REMOTE"
+echo "> Remote: $COMMIT_ID_REMOTE"
 
 if [ "$COMMIT_ID_LOCAL" == "$COMMIT_ID_REMOTE" ]; then
+    echo ""
     echo "No new commit to clone. Exiting."
     exit
 fi
@@ -201,7 +206,7 @@ which git > /dev/null 2> /dev/null
 
 RETCODE=$?
 if [ ! $RETCODE -eq 0 ]; then
-    error "Git is not present. You have to install it." 30
+    error "Git is not present." 30
 fi
 
 LOCAL_TIME=$(date +%Y%m%d_%H%M%S)
@@ -268,15 +273,25 @@ if [ ! -z $PRE_SCRIPT ]; then
         error_and_clean "Script $PRE_SCRIPT is not executable." 51
     fi
 
-    echo ""
-    echo "Running script $PRE_SCRIPT ..."
+    PRE_SCRIPT_REALPATH=$(realpath $PRE_SCRIPT)
 
-    sh -c "`realpath $PRE_SCRIPT` $DEST_DIR $LOCAL_DIR"
+    echo ""
+    echo "Running custom script..."
+    echo "> Script:      $PRE_SCRIPT"
+    echo "> Real path:   $PRE_SCRIPT_REALPATH"
+    echo "> Argument #1: $DEST_DIR"
+    echo "> Argument #2: $LOCAL_DIR"
+    echo ""
+
+    sh -c "$PRE_SCRIPT_REALPATH $DEST_DIR $LOCAL_DIR"
 
     RETCODE=$?
     if [ ! $RETCODE -eq 0 ]; then
-        error_and_clean "Script returned non-zero code ($RETCODE)." 53
+        error_and_clean "Custom script returned non-zero code ($RETCODE)." 53
     fi
+
+    echo ""
+    echo "Custom script returned ok."
 
     cd $BASE_DIR
 fi
