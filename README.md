@@ -117,13 +117,13 @@ Any other return code causes the program to delete the newly created repo folder
 
 1. Checks that the provided repo is valid (SSH or HTTP).
 
-2. Compares local and remote commit to see if there is a new version.
+2. Compares local and remote commits to see if there is a new version.
 
 3. Clones the remote commit in local, adding `-<timestamp>-<commit>` to the folder name.
 
-4. Deletes `.git` directory of the cloned repo.
+4. Deletes `.git` directory.
 
-5. If present, runs script specified by option `-s`.
+5. Runs custom script.
 
 6. Softlinks `<local folder>` to `<local folder>-<timestamp>-<commit>`.
 
